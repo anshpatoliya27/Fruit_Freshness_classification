@@ -1,0 +1,20 @@
+# Dataset (VERY IMPORTANT)
+Fruit Freshness Dataset
+Fruit Freshness Dataset.zip
+processed_dataset/
+*.zip
+
+# Model files (optional)
+*.h5
+*.keras
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Node stuff (frontend)
+node_modules/
+dist/
+
+# Logs
+*.log
