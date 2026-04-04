@@ -1,16 +1,22 @@
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Leaf } from "lucide-react";
 import UploadBox from "../components/UploadBox";
 import ResultCard from "../components/Resultcard";
 
 export default function Home() {
   const [image, setImage] = useState(null);
   const [result, setResult] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handlePredict = async () => {
     if (!image) {
-      alert("Upload image first");
+      alert("Please upload an image first.");
       return;
     }
+
+    setLoading(true);
+    setResult("");
 
     const formData = new FormData();
     formData.append("file", image);
@@ -26,23 +32,72 @@ export default function Home() {
     } catch (error) {
       console.error(error);
       alert("Error connecting to backend");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] flex flex-col items-center justify-center p-6">
-      <h1 className="text-3xl font-bold mb-2">Fruit Freshness AI 🍃</h1>
-
-      <UploadBox setImage={setImage} />
-
-      <button
-        onClick={handlePredict}
-        className="mt-4 px-6 py-2 bg-[#6BCB77] text-white rounded-xl"
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex flex-col items-center justify-center p-6 font-sans">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="max-w-xl w-full bg-white/60 backdrop-blur-xl shadow-2xl rounded-3xl p-8 border border-white/50 relative overflow-hidden"
       >
-        Predict
-      </button>
+        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-400 to-emerald-600" />
 
-      {result && <ResultCard result={result} />}
+        <div className="text-center mb-8">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
+            className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 mb-4 shadow-inner"
+          >
+            <Leaf size={32} strokeWidth={2.5} />
+          </motion.div>
+          <h1 className="text-4xl font-extrabold text-gray-800 tracking-tight">
+            Fruit <span className="text-emerald-600">Freshness</span> AI
+          </h1>
+          <p className="text-gray-500 mt-2 font-medium bg-emerald-50 inline-block px-4 py-1 rounded-full text-sm shadow-sm border border-emerald-100">
+            Instantly detect if your fruit is fresh or rotten
+          </p>
+        </div>
+
+        <UploadBox setImage={setImage} />
+
+        <motion.button
+          whileHover={{ scale: 1.02, boxShadow: "0 10px 25px -5px rgba(16, 185, 129, 0.4)" }}
+          whileTap={{ scale: 0.98 }}
+          onClick={handlePredict}
+          disabled={!image || loading}
+          className={`w-full mt-6 py-4 rounded-2xl text-lg font-bold transition-all shadow-lg text-white ${!image ? "bg-gray-300 cursor-not-allowed shadow-none" :
+              loading ? "bg-emerald-400 cursor-wait" : "bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600"
+            }`}
+        >
+          {loading ? (
+            <div className="flex items-center justify-center space-x-2">
+              <div className="w-5 h-5 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+              <span>Analyzing...</span>
+            </div>
+          ) : (
+            "Analyze Fruit"
+          )}
+        </motion.button>
+
+        <AnimatePresence>
+          {result && (
+            <motion.div
+              initial={{ opacity: 0, height: 0, mt: 0 }}
+              animate={{ opacity: 1, height: "auto", mt: 24 }}
+              exit={{ opacity: 0, height: 0, mt: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              <ResultCard result={result} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
     </div>
   );
 }
