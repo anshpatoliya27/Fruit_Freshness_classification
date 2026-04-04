@@ -14,13 +14,13 @@ model = tf.keras.models.load_model("model/fruit_model.keras")
 class_names = [
     'Apple_fresh', 'Apple_rotten',
     'Banana_fresh', 'Banana_rotten',
+    'Dragon_fresh', 'Dragon_rotten',
     'Grapes_fresh', 'Grapes_rotten',
     'Kiwi_fresh', 'Kiwi_rotten',
     'Peaches_fresh', 'Peaches_rotten',
     'Strawberry_fresh', 'Strawberry_rotten',
     'oranges_fresh', 'oranges_rotten',
-    'pomegranate_fresh', 'pomegranate_rotten',
-    'Dragon_fresh', 'Dragon_rotten'
+    'pomegranate_fresh', 'pomegranate_rotten'
 ]
 
 # Image preprocess
