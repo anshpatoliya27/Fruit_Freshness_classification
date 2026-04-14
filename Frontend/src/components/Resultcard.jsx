@@ -1,51 +1,40 @@
-import { CheckCircle2, AlertCircle } from "lucide-react";
+import { CheckCircle2, AlertCircle, HelpCircle } from "lucide-react";
 import { motion } from "framer-motion";
 
-export default function Resultcard({ result, confidence }) {
+export default function Resultcard({ result, confidence, live }) {
   const isFresh = result.toLowerCase().includes("fresh");
-
-  const formattedResult = result.replace(
-    /\b([a-zA-Z]+)\b/g,
-    (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-  );
+  const isUnknown = result.toLowerCase().includes("no fruit");
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="relative overflow-hidden p-6 rounded-2xl border border-gray-200 bg-white shadow-sm flex flex-col w-full"
-    >
-      <div className="flex items-center space-x-4 mb-4">
-        <div className={`p-3 rounded-lg flex-shrink-0 ${isFresh ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"}`}>
-          {isFresh ? <CheckCircle2 size={24} strokeWidth={2} /> : <AlertCircle size={24} strokeWidth={2} />}
+    <div className={`p-4 rounded-2xl border w-[260px] sm:w-[300px] ${live ? 'shadow-sm ring-1 ring-[#6BCB77]/20 border-[#6BCB77]/30' : 'shadow-sm'} bg-white border-gray-200`}>
+      <div className="flex items-center space-x-3 mb-4">
+        <div className={`p-2 rounded-xl flex-shrink-0 ${isFresh ? "bg-[#6BCB77]/15 text-[#6BCB77]" : isUnknown ? "bg-gray-100 text-gray-500" : "bg-[#FF6B6B]/15 text-[#FF6B6B]"}`}>
+          {isFresh ? <CheckCircle2 size={24} strokeWidth={2.5} /> : isUnknown ? <HelpCircle size={24} strokeWidth={2.5} /> : <AlertCircle size={24} strokeWidth={2.5} />}
         </div>
-
         <div className="flex-1">
-          <h3 className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1">
-            Status
-          </h3>
-          <p className="text-xl font-bold text-gray-900">
-            {formattedResult}
+          {live && <div className="text-[9px] font-bold uppercase tracking-wider text-red-500 mb-0.5 animate-pulse">Live Feed</div>}
+          <p className="text-lg font-bold text-gray-900 leading-tight">
+            {result}
           </p>
         </div>
       </div>
 
-      {confidence !== undefined && confidence !== null && (
-        <div className="w-full pt-4 border-t border-gray-100">
-            <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium text-gray-600">Model Confidence</span>
-                <span className="text-sm font-semibold text-gray-900">{confidence.toFixed(1)}%</span>
+      {confidence !== undefined && confidence !== null && !isUnknown && (
+        <div className="w-full pt-3 border-t border-gray-100">
+            <div className="flex justify-between items-center mb-1.5">
+                <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Confidence Score</span>
+                <span className="text-sm font-bold text-gray-700">{confidence.toFixed(1)}%</span>
             </div>
             <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
                 <motion.div 
-                    initial={{ width: 0 }}
+                    initial={live ? false : { width: 0 }}
                     animate={{ width: `${confidence}%` }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                    className={`h-1.5 rounded-full ${isFresh ? 'bg-emerald-500' : 'bg-rose-500'}`}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                    className={`h-1.5 rounded-full ${isFresh ? 'bg-[#6BCB77]' : 'bg-[#FF6B6B]'}`}
                 />
             </div>
         </div>
       )}
-    </motion.div>
+    </div>
   );
 }

@@ -45,13 +45,15 @@ def predict():
     confidence = float(np.max(prediction)) * 100
     predicted_class = class_names[np.argmax(prediction)]
 
-    # Format output
-    fruit, condition = predicted_class.split("_")
-
-    if condition == "fresh":
-        result = f"Fresh {fruit} 🍎"
+    if confidence < 50:
+        result = "No fruit detected ❌"
     else:
-        result = f"Rotten {fruit} ❌"
+        # Format output
+        fruit, condition = predicted_class.split("_")
+        if condition == "fresh":
+            result = f"Fresh {fruit} 🍎"
+        else:
+            result = f"Rotten {fruit} ❌"
 
     return jsonify({"result": result, "confidence": round(confidence, 2)})
 
