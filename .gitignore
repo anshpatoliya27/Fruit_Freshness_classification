@@ -4,9 +4,6 @@ Fruit Freshness Dataset.zip
 processed_dataset/
 *.zip
 
-# Model files (optional)
-*.h5
-*.keras
 
 # Python cache
 __pycache__/
