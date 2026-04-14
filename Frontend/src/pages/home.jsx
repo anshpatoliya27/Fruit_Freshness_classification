@@ -1,58 +1,23 @@
-import { useState, useRef, useEffect } from "react";
-import Sidebar from "../components/Sidebar";
-import InputArea from "../components/InputArea";
-import ChatItem from "../components/ChatItem";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Camera as CameraIcon, UploadCloud, Leaf, History } from "lucide-react";
+import UploadBox from "../components/UploadBox";
+import ResultCard from "../components/Resultcard";
 import Camera from "../components/Camera";
-import { Menu, X } from "lucide-react"; 
 
 export default function Home() {
   const [history, setHistory] = useState([]);
-  const [activeId, setActiveId] = useState(null);
-  const [isCameraActive, setIsCameraActive] = useState(false);
-  const [messages, setMessages] = useState([{ role: "assistant", type: "welcome" }]);
+  const [image, setImage] = useState(null);
+  const [result, setResult] = useState("");
+  const [confidence, setConfidence] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  
-  const scrollRef = useRef(null);
+  const [mode, setMode] = useState("upload");
 
-  useEffect(() => {
-    if (scrollRef.current) {
-        scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
-    }
-  }, [messages, loading, isCameraActive]);
-
-  const selectHistory = (id) => {
-    setActiveId(id);
-    setIsCameraActive(false);
-    setSidebarOpen(false);
-    const item = history.find(h => h.id === id);
-    if(item) {
-      setMessages([
-        { role: "user", type: "image", content: item.image },
-        { role: "assistant", type: "result", content: { result: item.result, confidence: item.confidence } }
-      ]);
-    }
-  };
-
-  const handleNew = () => {
-    setActiveId(null);
-    setIsCameraActive(false);
-    setSidebarOpen(false);
-    setMessages([{ role: "assistant", type: "welcome" }]);
-  };
-
-  const processImage = async (file) => {
-    setIsCameraActive(false);
-    const previewUrl = URL.createObjectURL(file);
-    
-    // Create new temporary session identifier
-    const tempId = Date.now();
-    setActiveId(tempId);
-    
-    setMessages([
-      { role: "user", type: "image", content: previewUrl }
-    ]);
+  const processPrediction = async (file) => {
+    setImage(file);
     setLoading(true);
+    setResult("");
+    setConfidence(null);
 
     const formData = new FormData();
     formData.append("file", file);
@@ -64,96 +29,162 @@ export default function Home() {
       });
 
       const data = await response.json();
-      
-      setMessages(prev => [
-        ...prev,
-        { role: "assistant", type: "result", content: { result: data.result, confidence: data.confidence } }
-      ]);
+      setResult(data.result);
+      if (data.confidence !== undefined) {
+        setConfidence(data.confidence);
+      }
 
-      // Add to history
       setHistory(prev => [{
-        id: tempId,
-        image: previewUrl,
+        id: Date.now(),
+        image: URL.createObjectURL(file),
         result: data.result,
         confidence: data.confidence,
-        timestamp: new Date().toLocaleTimeString()
+        timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
       }, ...prev]);
 
     } catch (error) {
       console.error(error);
-      setMessages(prev => [
-        ...prev,
-        { role: "assistant", type: "error", content: "Failed to connect to analysis server." }
-      ]);
+      alert("Error connecting to backend");
     } finally {
       setLoading(false);
     }
   };
 
   const handleLivePrediction = (data) => {
-    setMessages([{ role: "assistant", type: "result", content: { result: data.result, confidence: data.confidence, live: true } }]);
+    setResult(data.result);
+    setConfidence(data.confidence);
   };
 
   return (
-    <div className="flex w-full h-full relative">
-      <Sidebar history={history} activeId={activeId} onSelect={selectHistory} onNew={handleNew} />
+    <div className="max-w-[1440px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 min-h-screen flex flex-col selection:bg-fruit-primary selection:text-white">
       
-      {/* Mobile Sidebar Overlay */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-40 flex md:hidden">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
-          <div className="relative w-[260px] h-full bg-white flex flex-col shadow-xl">
-             <Sidebar history={history} activeId={activeId} onSelect={selectHistory} onNew={handleNew} />
-             <button onClick={() => setSidebarOpen(false)} className="absolute top-4 right-[-48px] bg-white text-black p-2 rounded-lg shadow-lg">
-                <X size={24} />
-             </button>
+      {/* Header */}
+      <header className="flex items-center justify-between mb-10 pb-6 border-b border-gray-200/60">
+        <div className="flex items-center space-x-3 group cursor-default">
+          <div className="bg-fruit-primary text-white p-2.5 rounded-xl shadow-[0_4px_20px_-4px_rgba(34,197,94,0.5)] group-hover:scale-105 group-hover:rotate-6 transition-all duration-300">
+             <Leaf size={24} strokeWidth={2.5} />
+          </div>
+          {/* Logo Request: light green and white combinations */}
+          <div className="bg-fruit-dark px-3.5 py-1.5 rounded-xl shadow-[0_4px_15px_-3px_rgba(0,0,0,0.1)] ring-1 ring-white/10">
+            <span className="text-2xl font-display font-black tracking-tight">
+              <span className="text-fruit-primary">Fresh</span>
+              <span className="text-white">Sense</span>
+            </span>
           </div>
         </div>
-      )}
+        <div className="hidden sm:flex items-center space-x-4">
+           <span className="text-[13px] font-bold uppercase tracking-widest px-5 py-2.5 bg-white rounded-full border border-gray-200 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] text-fruit-textMuted">
+             Intelligence Workspace
+           </span>
+        </div>
+      </header>
 
-      <div className="flex-1 flex flex-col h-full bg-white md:bg-[#F9FAFB] relative transition-all min-w-0">
+      {/* Main Dashboard Grid */}
+      <div className="flex-1 grid grid-cols-1 xl:grid-cols-12 gap-8 lg:gap-10">
         
-        {/* Mobile Header */}
-        <div className="md:hidden flex items-center justify-between p-4 border-b border-gray-100 bg-white shadow-sm z-10 sticky top-0">
-           <button onClick={() => setSidebarOpen(true)} className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-              <Menu size={24} />
-           </button>
-           <span className="font-semibold text-gray-800">FreshSense</span>
-           <div className="w-10"></div>
-        </div>
-        
-        {/* Chat Scroll Area */}
-        <div className="flex-1 overflow-y-auto w-full" ref={scrollRef}>
-          <div className="max-w-3xl mx-auto flex flex-col space-y-8 pb-10 pt-8 px-4 sm:px-6">
-            {!isCameraActive && messages.map((msg, idx) => (
-              <ChatItem key={idx} message={msg} />
-            ))}
-            
-            {loading && <ChatItem message={{ role: "assistant", type: "loading" }} />}
-            
-            {isCameraActive && (
-               <>
-                 <Camera onPrediction={handleLivePrediction} />
-                 {messages.map((msg, idx) => (
-                    msg.type === "result" && <ChatItem key={idx} message={msg} />
-                 ))}
-               </>
-            )}
-          </div>
+        {/* Left Column: Analysis Console (span 8) */}
+        <div className="xl:col-span-8 flex flex-col">
+           <div className="bg-white/80 backdrop-blur-3xl rounded-[2.5rem] shadow-[0_8px_40px_-12px_rgba(0,0,0,0.05)] border border-white overflow-hidden flex flex-col w-full h-full p-2 sm:p-4 ring-1 ring-black/5">
+              
+              {/* Toggler */}
+              <div className="bg-gray-100/80 p-1.5 rounded-[1.25rem] flex relative w-full sm:max-w-sm mx-auto mb-8 mt-5 shadow-inner border border-black/5">
+                 <button 
+                  onClick={() => {setMode("upload"); setResult(""); setImage(null);}}
+                  className={`flex-1 py-3 px-4 rounded-xl font-bold text-[13px] uppercase tracking-wider transition-all duration-300 flex items-center justify-center space-x-2 ${mode === 'upload' ? 'bg-white text-fruit-text shadow-[0_2px_15px_-4px_rgba(0,0,0,0.1)]' : 'text-fruit-textMuted hover:text-fruit-text'}`}
+                 >
+                    <UploadCloud size={18} strokeWidth={2.5}/>
+                    <span>Drop Photo</span>
+                 </button>
+                 <button 
+                  onClick={() => {setMode("camera"); setResult(""); setImage(null);}}
+                  className={`flex-1 py-3 px-4 rounded-xl font-bold text-[13px] uppercase tracking-wider transition-all duration-300 flex items-center justify-center space-x-2 ${mode === 'camera' ? 'bg-white text-fruit-text shadow-[0_2px_15px_-4px_rgba(0,0,0,0.1)]' : 'text-fruit-textMuted hover:text-fruit-text'}`}
+                 >
+                    <CameraIcon size={18} strokeWidth={2.5}/>
+                    <span>Live Lens</span>
+                 </button>
+              </div>
+
+              {/* Console Body */}
+              <div className="flex-1 flex flex-col items-center px-4 md:px-8 pb-10">
+                 <div className="w-full max-w-2xl relative">
+                    <AnimatePresence mode="wait">
+                       {mode === "upload" ? (
+                          <motion.div key="up" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.3 }}>
+                             <UploadBox onImageSelect={processPrediction} loading={loading} />
+                          </motion.div>
+                       ) : (
+                          <motion.div key="cam" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.3 }}>
+                             <Camera onPrediction={handleLivePrediction} />
+                          </motion.div>
+                       )}
+                    </AnimatePresence>
+
+                    {/* Result Placement */}
+                    <AnimatePresence>
+                       {(result || loading) && (
+                          <motion.div initial={{ opacity: 0, y: -20, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1, marginTop: 24 }} exit={{ opacity: 0, scale: 0.95, height: 0 }} transition={{ type: "spring", stiffness: 200, damping: 20 }} className="w-full origin-top">
+                             {loading ? (
+                                <div className="w-full bg-fruit-primaryLight/50 border border-fruit-primary/20 rounded-[2rem] p-8 flex flex-col items-center justify-center space-y-4 shadow-[0_8px_30px_rgba(34,197,94,0.1)] backdrop-blur-md">
+                                   <div className="w-12 h-12 border-[4px] border-fruit-primary/30 border-t-fruit-primary rounded-full animate-spin"></div>
+                                   <p className="font-extrabold tracking-widest uppercase text-fruit-primary text-xs animate-pulse">Running Neural Engine</p>
+                                </div>
+                             ) : (
+                                <ResultCard result={result} confidence={confidence} live={mode === 'camera'} />
+                             )}
+                          </motion.div>
+                       )}
+                    </AnimatePresence>
+                 </div>
+              </div>
+
+           </div>
         </div>
 
-        {/* Input Area */}
-        <div className="w-full bg-gradient-to-t from-white via-white/80 to-transparent pt-6 sticky bottom-0">
-          <InputArea 
-              onUpload={processImage} 
-              isCameraActive={isCameraActive}
-              onCameraToggle={() => {
-                  setIsCameraActive(!isCameraActive);
-                  if (!isCameraActive) setMessages([]);
-                  else handleNew(); 
-              }} 
-          />
+        {/* Right Column: History Sidebar (span 4) */}
+        <div className="xl:col-span-4 flex flex-col">
+           <div className="bg-white/80 backdrop-blur-3xl rounded-[2.5rem] shadow-[0_8px_40px_-12px_rgba(0,0,0,0.05)] border border-white flex flex-col h-full overflow-hidden ring-1 ring-black/5">
+              <div className="p-7 border-b border-gray-100/80 bg-gradient-to-b from-white to-transparent flex justify-between items-center relative z-10 shadow-sm">
+                 <h2 className="font-display font-black text-xl text-fruit-text flex items-center space-x-2.5">
+                    <History size={22} className="text-fruit-primary" strokeWidth={2.5}/>
+                    <span>Analysis Log</span>
+                 </h2>
+                 <span className="bg-gray-100 border border-gray-200/60 px-3.5 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-widest text-fruit-textMuted">{history.length} Saved</span>
+              </div>
+              <div className="flex-1 overflow-y-auto p-5 space-y-4 custom-scrollbar relative z-0">
+                 {history.length === 0 ? (
+                    <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-5 opacity-60">
+                       <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center shadow-inner border border-gray-200/50">
+                          <History size={32} className="text-gray-400" />
+                       </div>
+                       <div>
+                          <p className="text-base font-bold text-gray-800">No logs generated</p>
+                          <p className="text-sm text-gray-500 mt-1.5 leading-relaxed">Predictions from this session will be preserved here securely.</p>
+                       </div>
+                    </div>
+                 ) : history.map((item, index) => {
+                     const isFresh = item.result?.toLowerCase().includes("fresh");
+                     return (
+                         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }} key={item.id} className="p-3 bg-white border border-gray-100 rounded-[1.25rem] flex items-center space-x-4 shadow-[0_4px_15px_-3px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_25px_-5px_rgba(0,0,0,0.08)] transition-all duration-300 cursor-default group hover:-translate-y-0.5 ring-1 ring-black/5">
+                            <div className="w-16 h-16 rounded-[1rem] bg-gray-100 overflow-hidden border border-gray-200 flex-shrink-0 relative">
+                               <img src={item.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                               <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors"></div>
+                            </div>
+                            <div className="flex-1 min-w-0 py-1">
+                               <p className="text-sm font-black text-fruit-text truncate mb-1">{item.result}</p>
+                               <div className="flex items-center space-x-2.5">
+                                  <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded shadow-sm uppercase tracking-widest ${isFresh ? 'bg-fruit-primaryLight border border-fruit-primary/20 text-green-700' : 'bg-fruit-redLight border border-fruit-red/20 text-red-700'}`}>
+                                     {(item.confidence || 0).toFixed(0)}% Conf
+                                  </span>
+                                  <span className="text-[10px] font-bold text-gray-400">{item.timestamp}</span>
+                               </div>
+                            </div>
+                         </motion.div>
+                     )
+                 })}
+              </div>
+           </div>
         </div>
+
       </div>
     </div>
   );

@@ -11,12 +11,17 @@ export default {
         display: ['Outfit', 'sans-serif'],
       },
       colors: {
-        fresh: {
-          bg: '#F9FAFB',
-          primary: '#6BCB77',
-          secondary: '#FF6B6B',
-          accent: '#FFD84D',
-          text: '#1F2937',
+        fruit: {
+          bg: '#F8FAF5',        // Soft leaf white
+          panel: '#FFFFFF',     // Clean panel
+          primary: '#22C55E',   // Fresh green
+          primaryLight: '#DCFCE7', // Pale green
+          yellow: '#FDE047',    // Lemon yellow
+          yellowLight: '#FEF9C3', 
+          red: '#EF4444',       // Rotten red
+          redLight: '#FEF2F2',
+          text: '#064E3B',      // Extremely dark green (acts as black)
+          textMuted: '#475569', // Slate
         }
       },
       animation: {

@@ -3,7 +3,7 @@ import Home from './pages/home';
 
 function App() {
   return (
-    <div className="h-screen w-screen bg-[#F9FAFB] text-[#1F2937] font-sans selection:bg-[#6BCB77] selection:text-white overflow-hidden flex">
+    <div className="min-h-screen bg-fruit-bg text-fruit-text font-sans selection:bg-fruit-primary selection:text-white overflow-y-auto w-full">
       <Home />
     </div>
   );
