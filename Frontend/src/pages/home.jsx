@@ -65,10 +65,10 @@ export default function Home() {
              <Leaf size={24} strokeWidth={2.5} />
           </div>
           {/* Logo Request: light green and white combinations */}
-          <div className="bg-fruit-dark px-3.5 py-1.5 rounded-xl shadow-[0_4px_15px_-3px_rgba(0,0,0,0.1)] ring-1 ring-white/10">
+          <div className="px-3.5 py-1.5 rounded-xl">
             <span className="text-2xl font-display font-black tracking-tight">
               <span className="text-fruit-primary">Fresh</span>
-              <span className="text-white">Sense</span>
+              <span className="text-black">Sense</span>
             </span>
           </div>
         </div>

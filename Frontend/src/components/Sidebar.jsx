@@ -4,11 +4,11 @@ export default function Sidebar({ history, activeId, onSelect, onNew }) {
   return (
     <div className="w-[260px] flex-shrink-0 bg-white border-r border-gray-200 flex flex-col h-full z-10 hidden md:flex overflow-hidden">
       <div className="p-4 py-5 border-b border-gray-100 flex flex-col w-full sticky top-0 bg-white z-10">
-        <div className="flex items-center space-x-2.5 font-semibold text-lg tracking-tight mb-5 text-gray-800 px-1">
+        <div className="flex items-center space-x-2.5 font-semibold text-lg tracking-tight mb-5 px-1">
           <div className="bg-[#6BCB77] p-1.5 rounded-lg shadow-sm">
             <Leaf size={18} className="text-white" strokeWidth={2.5}/>
           </div>
-          <span>FreshSense AI</span>
+          <span><span className="text-[#6BCB77]">Fresh</span><span className="text-black">Sense AI</span></span>
         </div>
         <button 
           onClick={onNew}
