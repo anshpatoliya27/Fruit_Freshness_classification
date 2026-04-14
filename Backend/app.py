@@ -41,7 +41,8 @@ def predict():
 
     processed = preprocess_image(image)
     prediction = model.predict(processed)
-
+    
+    confidence = float(np.max(prediction)) * 100
     predicted_class = class_names[np.argmax(prediction)]
 
     # Format output
@@ -52,7 +53,7 @@ def predict():
     else:
         result = f"Rotten {fruit} ❌"
 
-    return jsonify({"result": result})
+    return jsonify({"result": result, "confidence": round(confidence, 2)})
 
 
 if __name__ == "__main__":
