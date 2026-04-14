@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { AlertCircle, Camera as CameraIcon, Focus } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function Camera({ setResult, setConfidence }) {
@@ -76,15 +76,15 @@ export default function Camera({ setResult, setConfidence }) {
 
   return (
     <motion.div 
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      className="w-full relative group rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-[#0B1120] h-[280px] flex flex-col items-center justify-center ring-1 ring-white/5"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="w-full relative rounded-2xl overflow-hidden bg-gray-100 h-[300px] flex flex-col items-center justify-center border border-gray-200"
     >
       {error ? (
-        <div className="text-rose-400 flex flex-col items-center text-center p-6 bg-rose-500/10 rounded-2xl border border-rose-500/20">
-          <AlertCircle size={44} className="mb-3 opacity-80" />
-          <p className="text-sm font-semibold">{error}</p>
+        <div className="flex flex-col items-center text-center p-6 text-red-600">
+          <AlertCircle size={32} className="mb-2" />
+          <p className="text-sm font-medium">{error}</p>
         </div>
       ) : (
         <>
@@ -93,24 +93,13 @@ export default function Camera({ setResult, setConfidence }) {
             autoPlay
             playsInline
             muted
-            className="w-full h-full object-cover opacity-90 transition-opacity duration-700"
+            className="w-full h-full object-cover"
           />
           <canvas ref={canvasRef} className="hidden" />
           
-          <div className="absolute top-4 right-4 bg-slate-900/80 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-lg flex items-center space-x-2 z-10">
-            <div className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.8)] animate-pulse" />
-            <span className="text-xs font-bold text-white tracking-widest uppercase">REC</span>
-          </div>
-
-          <div className="absolute inset-x-8 inset-y-8 border-2 border-white/20 rounded-2xl pointer-events-none group-hover:border-emerald-500/40 transition-colors duration-500 flex items-center justify-center">
-             <Focus className="w-12 h-12 text-white/20 group-hover:text-emerald-500/40 transition-all duration-500 transform group-hover:scale-110" strokeWidth={1} />
-          </div>
-
-          <div className="absolute bottom-4 left-0 right-0 flex justify-center pointer-events-none z-10">
-             <div className="bg-slate-900/80 border border-white/10 backdrop-blur-md px-5 py-2.5 rounded-full flex items-center space-x-3 shadow-2xl">
-                <CameraIcon size={16} className="text-emerald-400" />
-                <span className="text-slate-200 text-[11px] font-bold tracking-wider uppercase">Auto-Scanning</span>
-             </div>
+          <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1.5 rounded-full border border-gray-200 shadow-sm flex items-center space-x-2 z-10">
+            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+            <span className="text-xs font-semibold text-gray-800 uppercase tracking-widest">Live</span>
           </div>
         </>
       )}

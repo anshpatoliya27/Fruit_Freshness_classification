@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, ScanLine, ShieldCheck, Zap } from "lucide-react";
+import { Scan, Cpu, Zap } from "lucide-react";
 import UploadBox from "../components/UploadBox";
 import ResultCard from "../components/Resultcard";
 import Camera from "../components/Camera";
@@ -10,15 +10,12 @@ export default function Home() {
   const [result, setResult] = useState("");
   const [confidence, setConfidence] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState("camera"); // Default to live camera as it's cooler
+  const [mode, setMode] = useState("camera");
 
   const handlePredict = async (fileParam = null) => {
     const targetImage = fileParam instanceof File ? fileParam : image;
     
-    if (!targetImage) {
-      alert("Please upload an image first.");
-      return;
-    }
+    if (!targetImage) return;
 
     setLoading(true);
     setResult("");
@@ -51,145 +48,96 @@ export default function Home() {
     handlePredict(file);
   };
 
-  const features = [
-    { icon: <ScanLine className="w-5 h-5 text-emerald-400" />, title: "Real-time Scan", desc: "Live camera inference with millisecond latency." },
-    { icon: <ShieldCheck className="w-5 h-5 text-blue-400" />, title: "High Accuracy", desc: "State-of-the-art CNN models ensure precision." },
-    { icon: <Zap className="w-5 h-5 text-yellow-400" />, title: "Instant Insights", desc: "Know instantly if produce is fresh or rotten." },
-  ];
-
   return (
-    <div className="w-full flex-1 flex flex-col lg:flex-row gap-12 lg:gap-20 items-center justify-center py-10 lg:py-16">
+    <div className="flex-1 flex flex-col md:flex-row gap-12 lg:gap-24 items-center justify-center py-12">
       
-      {/* Left Column: Typography & Info */}
-      <motion.div 
-        initial={{ opacity: 0, x: -50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="w-full lg:w-5/12 flex flex-col justify-center space-y-8"
-      >
-        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-sm font-semibold w-fit">
-          <Sparkles className="w-4 h-4" />
-          <span>V2.0 AI Engine Active</span>
-        </div>
-        
-        <div className="space-y-4">
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-display font-black leading-[1.1] tracking-tight">
-            Analyze <br className="hidden sm:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-green-400 to-teal-500">
-              Produce Quality
-            </span><br className="hidden sm:block" />
-            in Seconds.
-          </h1>
-          <p className="text-lg text-slate-400 max-w-xl font-medium leading-relaxed">
-            Harness the power of deep learning to instantly determine the freshness of fruits. Prevent waste and ensure absolute quality with enterprise-grade accuracy.
-          </p>
-        </div>
+      {/* Left Column: Minimalist Typography */}
+      <div className="w-full md:w-1/2 flex flex-col justify-center space-y-6">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.15] tracking-tight text-gray-900">
+          Determine produce freshness instantly.
+        </h1>
+        <p className="text-lg text-gray-500 max-w-lg leading-relaxed">
+          Powered by state-of-the-art vision models. Drop an image or open your camera to verify quality in milliseconds.
+        </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4 mt-8">
-            {features.map((feature, idx) => (
-                <div key={idx} className="flex items-start space-x-4 p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-                    <div className="p-2.5 rounded-xl bg-slate-800/80 shadow-inner">
-                        {feature.icon}
-                    </div>
-                    <div>
-                        <h4 className="text-slate-200 font-bold text-sm">{feature.title}</h4>
-                        <p className="text-slate-400 text-xs mt-1 leading-relaxed">{feature.desc}</p>
-                    </div>
-                </div>
-            ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 mt-6">
+            <div className="flex items-center space-x-3 text-gray-700">
+                <Scan className="w-5 h-5 text-gray-400" />
+                <span className="text-sm font-medium">Auto-focusing Camera</span>
+            </div>
+            <div className="flex items-center space-x-3 text-gray-700">
+                <Zap className="w-5 h-5 text-gray-400" />
+                <span className="text-sm font-medium">Sub-second Inference</span>
+            </div>
+            <div className="flex items-center space-x-3 text-gray-700">
+                <Cpu className="w-5 h-5 text-gray-400" />
+                <span className="text-sm font-medium">TensorFlow Accelerated</span>
+            </div>
         </div>
-      </motion.div>
+      </div>
 
-      {/* Right Column: Interaction Card */}
-      <motion.div 
-        initial={{ opacity: 0, x: 50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-        className="w-full lg:w-7/12 max-w-xl lg:max-w-none"
-      >
-        <div className="glass-panel p-6 sm:p-8 rounded-[2rem] relative overflow-hidden group">
-          <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-emerald-500 via-green-400 to-teal-500"></div>
+      {/* Right Column: Clean White Card Component */}
+      <div className="w-full md:w-1/2 max-w-md">
+        <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-200">
           
-          {/* Tab Toggle */}
-          <div className="flex w-full mb-6 bg-slate-800/50 p-1.5 rounded-xl border border-white/5 relative z-10">
+          {/* Segmented Control */}
+          <div className="flex bg-gray-100 p-1 rounded-xl mb-6">
             <button
               onClick={() => { setMode("camera"); setResult(""); setConfidence(null); }}
-              className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all flex items-center justify-center space-x-2 ${
-                mode === "camera" ? "bg-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)]" : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+              className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
+                mode === "camera" ? "bg-white text-black shadow-sm" : "text-gray-500 hover:text-gray-700"
               }`}
             >
-              <ScanLine className="w-4 h-4" />
-              <span>Live Analysis</span>
+              Camera
             </button>
             <button
               onClick={() => { setMode("upload"); setResult(""); setConfidence(null); }}
-              className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all flex items-center justify-center space-x-2 ${
-                mode === "upload" ? "bg-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)]" : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+              className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
+                mode === "upload" ? "bg-white text-black shadow-sm" : "text-gray-500 hover:text-gray-700"
               }`}
             >
-               <span>Upload Image</span>
+               Upload
             </button>
           </div>
 
-          <div className="relative z-10">
+          <div className="relative min-h-[300px]">
             <AnimatePresence mode="wait">
                 {mode === "upload" ? (
-                    <motion.div key="upload" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                    <motion.div key="upload" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                         <UploadBox onImageSelect={handleImageDropped} />
-                        
-                        <AnimatePresence>
-                          {(image || loading) && (
-                              <motion.button
-                                  initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                                  animate={{ opacity: 1, height: 'auto', marginTop: 24 }}
-                                  exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                                  whileHover={!loading ? { scale: 1.02 } : {}}
-                                  whileTap={!loading ? { scale: 0.98 } : {}}
-                                  onClick={() => handlePredict(image)}
-                                  disabled={loading}
-                                  className={`w-full py-4 rounded-2xl text-lg font-bold transition-all text-white relative overflow-hidden ${
-                                      loading ? "bg-emerald-500/80 cursor-wait" : "bg-gradient-to-r from-emerald-500 to-teal-500 hover:shadow-[0_0_30px_rgba(16,185,129,0.4)]"
-                                  }`}
-                              >
-                                  {loading ? (
-                                    <div className="flex items-center justify-center space-x-3">
-                                        <div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin" />
-                                        <span>Processing Sequence...</span>
-                                    </div>
-                                  ) : (
-                                    "Re-Analyze Condition"
-                                  )}
-                              </motion.button>
-                           )}
-                        </AnimatePresence>
                     </motion.div>
                 ) : (
-                    <motion.div key="camera" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                    <motion.div key="camera" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                         <Camera setResult={setResult} setConfidence={setConfidence} />
-                        <div className="mt-5 flex items-center justify-center space-x-2 text-sm text-emerald-400/80 font-medium">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                            <span>System active. Position produce within frame.</span>
-                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
           </div>
 
           <AnimatePresence>
-            {result && (
+            {(loading || result) && (
               <motion.div
                 initial={{ opacity: 0, height: 0, marginTop: 0 }}
                 animate={{ opacity: 1, height: "auto", marginTop: 24 }}
                 exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                transition={{ duration: 0.4, type: "spring", stiffness: 200, damping: 20 }}
-                className="relative z-10"
+                className="overflow-hidden"
               >
-                <ResultCard result={result} confidence={confidence} />
+                {loading ? (
+                    <div className="p-4 rounded-xl border border-gray-100 bg-gray-50 flex items-center justify-center space-x-3">
+                        <div className="w-4 h-4 border-2 border-gray-300 border-t-black rounded-full animate-spin" />
+                        <span className="text-sm font-medium text-gray-500">Processing...</span>
+                    </div>
+                ) : (
+                    <>
+                      {result && <ResultCard result={result} confidence={confidence} />}
+                    </>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
+
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }
